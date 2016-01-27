@@ -10,18 +10,46 @@
 
 @interface ViewController ()
 
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (strong, nonatomic) NSUserActivity *userActivity;
+
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    self.textField.delegate = self;
+    
+    self.userActivity = [[NSUserActivity alloc] initWithActivityType:@"sa.Handoff-Demo.text"];
+    self.userActivity.title = @"Message";
+    self.userActivity.userInfo = @{@"text":@""};
+    [self.userActivity becomeCurrent];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITextFieldDelegte methods
+
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    [self updateUserActivityState:self.userActivity];
+    return YES;
+}
+
+
+#pragma mark - User Activity methods
+
+-(void)updateUserActivityState:(NSUserActivity *)activity {
+    [activity addUserInfoEntriesFromDictionary:@{@"text": self.textField.text}];
+    [super updateUserActivityState:activity];
+}
+
+-(void)restoreUserActivityState:(NSUserActivity *)activity {
+    self.textField.text = activity.userInfo[@"text"];
 }
 
 @end
