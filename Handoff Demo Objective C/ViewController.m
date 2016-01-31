@@ -12,6 +12,7 @@
 
 @property (weak, nonatomic) IBOutlet UITextField *textField;
 @property (strong, nonatomic) NSUserActivity *userActivity;
+@property (strong, nonatomic) NSString *messageText;
 
 @end
 
@@ -33,23 +34,23 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - UITextFieldDelegte methods
-
--(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    [self updateUserActivityState:self.userActivity];
-    return YES;
-}
-
-
 #pragma mark - User Activity methods
 
 -(void)updateUserActivityState:(NSUserActivity *)activity {
-    [activity addUserInfoEntriesFromDictionary:@{@"text": self.textField.text}];
+    [activity addUserInfoEntriesFromDictionary:@{@"text": self.messageText}];
     [super updateUserActivityState:activity];
 }
 
 -(void)restoreUserActivityState:(NSUserActivity *)activity {
     self.textField.text = activity.userInfo[@"text"];
+}
+
+#pragma mark - UITextFieldDelegte methods
+
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    self.messageText = [self.textField.text stringByReplacingCharactersInRange:range withString:string];
+    [self updateUserActivityState:self.userActivity];
+    return YES;
 }
 
 @end
